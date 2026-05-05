@@ -36,3 +36,4 @@ tmp/
 temp/
 *.pdf
 .cache/
+.vercel
