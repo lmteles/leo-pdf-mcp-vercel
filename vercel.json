@@ -1,19 +1,6 @@
 {
   "buildCommand": "pip install -r requirements.txt",
   "outputDirectory": "api",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/generate_pdf.py"
-    }
-  ],
-  "functions": {
-    "api/generate_pdf.py": {
-      "memory": 1024,
-      "maxDuration": 60,
-      "runtime": "python@3.11"
-    }
-  },
   "env": {
     "PYTHONUNBUFFERED": "1"
   }
