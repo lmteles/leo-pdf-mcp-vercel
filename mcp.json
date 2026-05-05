@@ -1,0 +1,221 @@
+{
+  "mcp_version": "1.0",
+  "name": "leo-pdf-report-generator",
+  "description": "Generate branded PDF reports for Leo T (Estamina/Sebrae Bahia) using ReportLab + Matplotlib",
+  "author": "Leonardo Teles (Leo T)",
+  "tools": [
+    {
+      "name": "generate_pdf_report",
+      "description": "Generate a professional PDF report with Leo's brand system (NAVY/TEAL/GOLD palette, styled charts, cover page, headers/footers). Returns a downloadable PDF.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Main report title (e.g., 'Quiosque Aeroporto Salvador')"
+          },
+          "client": {
+            "type": "string",
+            "description": "Client/organization name (e.g., 'Sebrae Bahia')",
+            "default": "Estamina"
+          },
+          "year": {
+            "type": "string",
+            "description": "Report year for footer and cover",
+            "default": "2026"
+          },
+          "subtitle": {
+            "type": "string",
+            "description": "One-line strategic framing on cover",
+            "default": "Strategic Analysis"
+          },
+          "cover_description": {
+            "type": "string",
+            "description": "2-3 sentence abstract on cover (max 240 chars)"
+          },
+          "cover_metrics": {
+            "type": "array",
+            "description": "Exactly 4 headline metrics for cover KPI boxes. Each: [value, label]",
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {"type": "string"}
+            },
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "content": {
+            "type": "object",
+            "description": "Report sections and content structure",
+            "properties": {
+              "sections": {
+                "type": "array",
+                "description": "Array of content sections (h1, h2, h3, body, chart, callout, kpi_row, etc.)",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["h1", "h2", "h3", "body", "caption", "bullet", "spacer", "page_break", "callout", "kpi_row", "chart"],
+                      "description": "Section type"
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Main text content (for h1, h2, h3, body, caption, callout)"
+                    },
+                    "label": {
+                      "type": "string",
+                      "description": "Label for callout box (optional)"
+                    },
+                    "border": {
+                      "type": "string",
+                      "enum": ["teal", "gold", "navy", "grey"],
+                      "default": "teal",
+                      "description": "Border color for callout"
+                    },
+                    "bg": {
+                      "type": "string",
+                      "enum": ["light", "white"],
+                      "default": "light",
+                      "description": "Background color for callout"
+                    },
+                    "items": {
+                      "type": "array",
+                      "description": "Bullet point items (for bullet sections)",
+                      "items": {"type": "string"}
+                    },
+                    "height": {
+                      "type": "number",
+                      "description": "Spacer height in mm (for spacer type)"
+                    },
+                    "kpis": {
+                      "type": "array",
+                      "description": "Array of KPI objects (for kpi_row type)",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "value": {"type": "string", "description": "KPI value (e.g., 'R$ 26.232')"},
+                          "label": {"type": "string", "description": "KPI label (e.g., 'Monthly Profit')"},
+                          "color": {
+                            "type": "string",
+                            "enum": ["teal", "gold", "navy", "grey"],
+                            "default": "teal"
+                          }
+                        },
+                        "required": ["value", "label"]
+                      }
+                    },
+                    "chart_type": {
+                      "type": "string",
+                      "enum": ["bar", "line", "pie", "donut", "payback"],
+                      "description": "Type of chart to render"
+                    },
+                    "categories": {
+                      "type": "array",
+                      "items": {"type": "string"},
+                      "description": "Category labels (for bar charts)"
+                    },
+                    "values": {
+                      "type": "array",
+                      "items": {"type": "number"},
+                      "description": "Data values (for bar, pie, donut charts)"
+                    },
+                    "x_labels": {
+                      "type": "array",
+                      "items": {"type": "string"},
+                      "description": "X-axis labels (for line charts)"
+                    },
+                    "y_series": {
+                      "type": "array",
+                      "description": "Array of y-value arrays (for line charts)",
+                      "items": {
+                        "type": "array",
+                        "items": {"type": "number"}
+                      }
+                    },
+                    "series_names": {
+                      "type": "array",
+                      "items": {"type": "string"},
+                      "description": "Names for each line series (optional)"
+                    },
+                    "labels": {
+                      "type": "array",
+                      "items": {"type": "string"},
+                      "description": "Labels for pie/donut slices"
+                    },
+                    "center_text": {
+                      "type": "string",
+                      "description": "Text for donut centre (e.g., '87%')"
+                    },
+                    "center_subtext": {
+                      "type": "string",
+                      "description": "Subtext for donut centre"
+                    },
+                    "investment": {
+                      "type": "number",
+                      "description": "Initial investment amount (for payback chart)"
+                    },
+                    "monthly_profit": {
+                      "type": "number",
+                      "description": "Monthly profit (for payback chart)"
+                    },
+                    "months": {
+                      "type": "integer",
+                      "default": 10,
+                      "description": "Number of months to project (for payback chart)"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Chart title"
+                    },
+                    "xlabel": {
+                      "type": "string",
+                      "description": "X-axis label"
+                    },
+                    "ylabel": {
+                      "type": "string",
+                      "description": "Y-axis label"
+                    },
+                    "orientation": {
+                      "type": "string",
+                      "enum": ["vertical", "horizontal"],
+                      "default": "vertical",
+                      "description": "Bar chart orientation"
+                    },
+                    "value_fmt": {
+                      "type": "string",
+                      "default": "{v}",
+                      "description": "Format string for chart value labels (use {v} as placeholder)"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "description": "Caption below chart (cite sources, explain findings)"
+                    },
+                    "width_cm": {
+                      "type": "number",
+                      "description": "Chart width in centimeters (default 14 for full width)"
+                    },
+                    "height_cm": {
+                      "type": "number",
+                      "description": "Chart height in centimeters"
+                    }
+                  },
+                  "required": ["type"]
+                }
+              }
+            },
+            "required": ["sections"]
+          }
+        },
+        "required": ["title", "content", "cover_metrics", "cover_description"]
+      }
+    }
+  ],
+  "api_endpoint": "https://leo-pdf-mcp-vercel.vercel.app/api/generate_pdf",
+  "authentication": "none",
+  "rate_limit": {
+    "requests_per_minute": 60,
+    "requests_per_hour": 1000
+  }
+}
